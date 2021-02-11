@@ -1,7 +1,7 @@
 import http from 'http'
-import app from './app'
-import config from './utils/config'
-import logger from './utils/logger'
+import app from './app.js'
+import config from './utils/config.js'
+import logger from './utils/logger.js'
 
 const server = http.createServer(app)
 
