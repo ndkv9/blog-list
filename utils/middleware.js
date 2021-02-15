@@ -1,4 +1,4 @@
-import logger from './logger.js'
+const logger = require('./logger.js')
 
 const unknownEndpoint = (req, res) => {
 	res.status(404).send({ error: 'unknown endpoint' })
@@ -16,4 +16,4 @@ const errorHandler = (error, req, res, next) => {
 	next(error)
 }
 
-export default { unknownEndpoint, errorHandler }
+module.exports = { unknownEndpoint, errorHandler }

@@ -1,12 +1,12 @@
-import express from 'express'
+const express = require('express')
 const app = express()
 
-import config from './utils/config.js'
-import logger from './utils/logger.js'
-import cors from 'cors'
-import middleware from './utils/middleware.js'
-import blogRouter from './controllers/blogs.js'
-import mongoose from 'mongoose'
+const config = require('./utils/config.js')
+const logger = require('./utils/logger.js')
+const cors = require('cors')
+const middleware = require('./utils/middleware.js')
+const blogRouter = require('./controllers/blogs.js')
+const mongoose = require('mongoose')
 
 mongoose
 	.connect(config.MONGODB_URI, {
@@ -29,4 +29,4 @@ app.use('/api/blogs', blogRouter)
 app.use(middleware.unknownEndpoint)
 app.use(middleware.errorHandler)
 
-export default app
+module.exports = app
