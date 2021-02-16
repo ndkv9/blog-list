@@ -16,10 +16,12 @@ beforeEach(async () => {
 
 describe('blog list', () => {
 	test('return all blog posts in JSON format', async () => {
-		await api
+		const result = await api
 			.get('/api/blogs')
 			.expect(200)
 			.expect('Content-Type', /application\/json/)
+
+		expect(result.body).toHaveLength(helper.initialBlogs.length)
 	})
 })
 
