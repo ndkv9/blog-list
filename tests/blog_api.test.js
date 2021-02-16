@@ -32,6 +32,27 @@ describe('blog list', () => {
 
 		expect(result.body[0].id).toBeDefined()
 	})
+
+	test('creates a new blog properly', async () => {
+		const blogsAtStart = await helper.blogsInDB()
+		console.log('start', blogsAtStart)
+
+		const newBlog = {
+			title: 'new blog',
+			author: 'me',
+			url: 'http://example.com',
+			likes: 54,
+		}
+		const response = await api
+			.post('/api/blogs')
+			.send(newBlog)
+			.expect(201)
+			.expect('Content-Type', /application\/json/)
+
+		const blogsAtEnd = await helper.blogsInDB()
+		expect(blogsAtEnd).toHaveLength(blogsAtStart.length + 1)
+		expect(blogsAtEnd.map(b => b.title)).toContain(newBlog.title)
+	})
 })
 
 afterAll(() => mongoose.connection.close())
