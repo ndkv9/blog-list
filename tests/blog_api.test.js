@@ -82,6 +82,13 @@ describe('blog list', () => {
 
 		await api.post('/api/blogs').send(newBlog).expect(400)
 	})
+
+	test('delete a blog successfully', async () => {
+		const blogsAtStart = await helper.blogsInDB()
+		await api.delete(`/api/blogs/${blogsAtStart[0].id}`).expect(204)
+		const blogsAtEnd = await helper.blogsInDB()
+		expect(blogsAtEnd).toHaveLength(blogsAtStart.length - 1)
+	})
 })
 
 afterAll(() => mongoose.connection.close())
