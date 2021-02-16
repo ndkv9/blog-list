@@ -73,6 +73,15 @@ describe('blog list', () => {
 		expect(addedBlog.likes).toBeDefined()
 		expect(addedBlog.likes).toBe(0)
 	})
+
+	test('if title and url are missing from the request, response with status code 400', async () => {
+		const newBlog = {
+			author: 'me',
+			url: 'http://example.com',
+		}
+
+		await api.post('/api/blogs').send(newBlog).expect(400)
+	})
 })
 
 afterAll(() => mongoose.connection.close())
