@@ -35,7 +35,6 @@ describe('blog list', () => {
 
 	test('creates a new blog properly', async () => {
 		const blogsAtStart = await helper.blogsInDB()
-		console.log('start', blogsAtStart)
 
 		const newBlog = {
 			title: 'new blog',
@@ -43,7 +42,7 @@ describe('blog list', () => {
 			url: 'http://example.com',
 			likes: 54,
 		}
-		const response = await api
+		await api
 			.post('/api/blogs')
 			.send(newBlog)
 			.expect(201)
@@ -52,6 +51,27 @@ describe('blog list', () => {
 		const blogsAtEnd = await helper.blogsInDB()
 		expect(blogsAtEnd).toHaveLength(blogsAtStart.length + 1)
 		expect(blogsAtEnd.map(b => b.title)).toContain(newBlog.title)
+	})
+
+	test('if likes property is missing, it will default to 0', async () => {
+		const newBlog = {
+			title: 'missing likes property',
+			author: 'me',
+			url: 'http://example.com',
+		}
+
+		await api
+			.post('/api/blogs')
+			.send(newBlog)
+			.expect(201)
+			.expect('Content-Type', /application\/json/)
+
+		const blogsAtEnd = await helper.blogsInDB()
+		const addedBlog = await Blog.findOne({ title: newBlog.title })
+
+		expect(blogsAtEnd.map(b => b.title)).toContain(addedBlog.title)
+		expect(addedBlog.likes).toBeDefined()
+		expect(addedBlog.likes).toBe(0)
 	})
 })
 
