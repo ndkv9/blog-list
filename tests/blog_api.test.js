@@ -23,6 +23,15 @@ describe('blog list', () => {
 
 		expect(result.body).toHaveLength(helper.initialBlogs.length)
 	})
+
+	test('names the unique property as id', async () => {
+		const result = await api
+			.get('/api/blogs')
+			.expect(200)
+			.expect('Content-Type', /application\/json/)
+
+		expect(result.body[0].id).toBeDefined()
+	})
 })
 
 afterAll(() => mongoose.connection.close())
