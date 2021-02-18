@@ -5,26 +5,15 @@ const jwt = require('jsonwebtoken')
 
 const blogsRouter = express.Router()
 
-// helper function to get token from request
-const getToken = request => {
-	const authorization = request.get('authorization')
-	if (authorization && authorization.toLowerCase().startsWith('bearer ')) {
-		return authorization.slice(7)
-	}
-
-	return null
-}
-
 blogsRouter.get('/', async (req, res) => {
 	const blogs = await Blog.find({}).populate('user', { username: 1, name: 1 })
 	res.json(blogs)
 })
 
 blogsRouter.post('/', async (req, res) => {
-	const token = await getToken(req)
-	const decodedToken = jwt.verify(token, process.env.SECRET)
+	const decodedToken = jwt.verify(res.token, process.env.SECRET)
 
-	if (!token || !decodedToken.id) {
+	if (!decodedToken.id) {
 		return res.status(401).json({ error: 'invalid token' })
 	}
 
