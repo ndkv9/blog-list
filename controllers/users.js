@@ -14,6 +14,10 @@ usersRouter.post('/', async (req, res) => {
 		return res.status(400).json({ errors: 'missing username or password' })
 	}
 
+	if (User.findOne({ username: body.username })) {
+		return res.status(400).json({ errors: 'username must be unique' })
+	}
+
 	if (body.password.length < 3) {
 		return res
 			.status(401)

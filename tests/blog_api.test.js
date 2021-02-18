@@ -3,18 +3,19 @@ const supertest = require('supertest')
 const mongoose = require('mongoose')
 const helper = require('./api_helper')
 const Blog = require('../models/blog')
+const User = require('../models/user')
 
 const api = supertest(app)
 
-beforeEach(async () => {
-	await Blog.deleteMany({})
-	for (blog of helper.initialBlogs) {
-		let blogObj = new Blog(blog)
-		await blogObj.save()
-	}
-})
-
 describe('blog list', () => {
+	beforeEach(async () => {
+		await Blog.deleteMany({})
+		for (blog of helper.initialBlogs) {
+			let blogObj = new Blog(blog)
+			await blogObj.save()
+		}
+	})
+
 	test('return all blog posts in JSON format', async () => {
 		const result = await api
 			.get('/api/blogs')
@@ -88,6 +89,30 @@ describe('blog list', () => {
 		await api.delete(`/api/blogs/${blogsAtStart[0].id}`).expect(204)
 		const blogsAtEnd = await helper.blogsInDB()
 		expect(blogsAtEnd).toHaveLength(blogsAtStart.length - 1)
+	})
+})
+
+describe('users in DB', () => {
+	beforeEach(async () => {
+		await User.deleteMany({})
+
+		const user = new User({
+			username: 'saiyan1',
+			name: 'kakalot',
+			password: 'password1',
+		})
+
+		await user.save()
+	})
+
+	test('adding invalid user fails', async () => {
+		const user = {
+			username: 'saiyan1',
+			name: 'piccolo',
+			password: 'password1',
+		}
+
+		await api.post('/api/users').send(user).expect(400)
 	})
 })
 
