@@ -17,6 +17,11 @@ blogsRouter.post('/', async (req, res) => {
 		res.status(400).json({ error: 'title or url missing!' })
 	}
 	const newBlog = await blog.save()
+
+	const user = await User.findById(blog.user)
+	user.blogs = user.blogs.concat(newBlog._id)
+	await user.save()
+
 	res.status(201).json(newBlog)
 })
 
