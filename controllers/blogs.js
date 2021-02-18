@@ -2,6 +2,7 @@ const express = require('express')
 const Blog = require('../models/blog.js')
 const User = require('../models/user.js')
 const jwt = require('jsonwebtoken')
+const blog = require('../models/blog.js')
 
 const blogsRouter = express.Router()
 
@@ -36,13 +37,19 @@ blogsRouter.post('/', async (req, res) => {
 blogsRouter.delete('/:id', async (req, res) => {
 	const decodedToken = jwt.verify(req.token, process.env.SECRET)
 	const blogToDelete = await Blog.findById(req.params.id)
+	const user = await User.findById(decodedToken.id)
 
 	if (!blogToDelete) {
 		return res.status(404).json({ error: 'nonexisting blog' })
 	}
 
-	if (decodedToken.id.toString() === blogToDelete.user.toString()) {
-		await Blog.findByIdAndRemove(req.params.id)
+	if (user._id.toString() === blogToDelete.user.toString()) {
+		await blogToDelete.remove()
+		user.blogs = user.blogs.filter(
+			b => b.id.toString() !== req.params.id.toString()
+		)
+		await user.save()
+
 		return res.status(204).end()
 	}
 
