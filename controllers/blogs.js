@@ -11,7 +11,7 @@ blogsRouter.get('/', async (req, res) => {
 })
 
 blogsRouter.post('/', async (req, res) => {
-	const decodedToken = jwt.verify(res.token, process.env.SECRET)
+	const decodedToken = jwt.verify(req.token, process.env.SECRET)
 
 	if (!decodedToken.id) {
 		return res.status(401).json({ error: 'invalid token' })
@@ -19,7 +19,7 @@ blogsRouter.post('/', async (req, res) => {
 
 	const user = await User.findById(decodedToken.id)
 
-	const blog = new Blog(req.body)
+	const blog = new Blog({ ...req.body, user: user._id })
 
 	blog.likes ? blog.likes : (blog.likes = 0)
 
@@ -34,8 +34,21 @@ blogsRouter.post('/', async (req, res) => {
 })
 
 blogsRouter.delete('/:id', async (req, res) => {
-	await Blog.findByIdAndRemove(req.params.id)
-	res.status(204).end()
+	const decodedToken = jwt.verify(req.token, process.env.SECRET)
+	const blogToDelete = await Blog.findById(req.params.id)
+
+	if (!blogToDelete) {
+		return res.status(404).json({ error: 'nonexisting blog' })
+	}
+
+	if (decodedToken.id.toString() === blogToDelete.user.toString()) {
+		await Blog.findByIdAndRemove(req.params.id)
+		return res.status(204).end()
+	}
+
+	return res
+		.status(400)
+		.json({ error: 'cannot delete blog when you are not the creator' })
 })
 
 blogsRouter.put('/:id', async (req, res) => {

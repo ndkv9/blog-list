@@ -18,7 +18,8 @@ usersRouter.post('/', async (req, res) => {
 		return res.status(400).json({ errors: 'missing username or password' })
 	}
 
-	if (User.findOne({ username: body.username })) {
+	const userToCreate = await User.findOne({ username: body.username })
+	if (userToCreate) {
 		return res.status(400).json({ errors: 'username must be unique' })
 	}
 

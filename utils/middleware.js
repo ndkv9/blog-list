@@ -3,10 +3,9 @@ const logger = require('./logger.js')
 const tokenExtractor = (req, res, next) => {
 	const authorization = req.get('authorization')
 	if (authorization && authorization.toLowerCase().startsWith('bearer ')) {
-		res.token = authorization.slice(7)
-		console.log('token ne m', res.token)
+		req.token = authorization.slice(7)
 	} else {
-		res.token = null
+		req.token = null
 	}
 
 	next()
