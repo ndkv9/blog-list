@@ -38,26 +38,28 @@ blogsRouter.delete('/:id', async (req, res) => {
 		return res.status(401).json({ error: 'token missing or invalid' })
 	}
 
-	const blogToDelete = await Blog.findById(req.params.id)
+	const blog = await Blog.findById(req.params.id)
 	const user = await User.findById(decodedToken.id)
 
-	if (!blogToDelete) {
+	if (!blog) {
 		return res.status(404).json({ error: 'nonexisting blog' })
 	}
 
-	if (user._id.toString() === blogToDelete.user.toString()) {
-		await blogToDelete.remove()
-		user.blogs = user.blogs.filter(
-			b => b.id.toString() !== req.params.id.toString()
-		)
-		await user.save()
-
-		return res.status(204).end()
+	if (blog.user.toString() !== user.id.toString()) {
+		return response
+			.status(401)
+			.json({ error: 'only the creator can delete blogs' })
 	}
 
-	return res
-		.status(400)
-		.json({ error: 'cannot delete blog when you are not the creator' })
+	await blog.remove()
+	user.blogs = user.blogs.filter(b => {
+		console.log('user', user)
+		console.log('b.id', b.toString())
+		console.log('req.id', req.params.id)
+		return b.toString() !== req.params.id.toString()
+	})
+	await user.save()
+	res.status(204).end()
 })
 
 blogsRouter.put('/:id', async (req, res) => {
