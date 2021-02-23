@@ -11,6 +11,7 @@ blogsRouter.get('/', async (req, res) => {
 
 blogsRouter.post('/', async (req, res) => {
 	const decodedToken = jwt.verify(req.token, process.env.SECRET)
+	const blog = new Blog(req.body)
 
 	if (!decodedToken.id) {
 		return res.status(401).json({ error: 'invalid token' })
@@ -18,13 +19,12 @@ blogsRouter.post('/', async (req, res) => {
 
 	const user = await User.findById(decodedToken.id)
 
-	const blog = new Blog({ ...req.body, user: user._id })
-
 	blog.likes ? blog.likes : (blog.likes = 0)
 
 	if (!blog.url || !blog.title) {
 		res.status(400).json({ error: 'title or url missing!' })
 	}
+	blog.user = user
 	const newBlog = await blog.save()
 	user.blogs = user.blogs.concat(newBlog._id)
 	await user.save()
